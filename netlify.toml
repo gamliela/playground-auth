@@ -1,0 +1,12 @@
+[build]
+  command   = "yarn run build"
+  functions = "functions"
+  publish   = "public"
+
+# without dev.command, "netlify dev" task takes as default the next.js development server to serve the files.
+# this is not good, because it completely ignores the public directoy, and the _redirects file in particular.
+# therefore, we use "http-server" to serve the public directory.
+[dev]
+  command   = "http-server public -p 3000 -c-1"
+  functions = "functions"
+  publish   = "public"

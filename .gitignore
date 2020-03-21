@@ -1,0 +1,29 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+
+# next.js
+/.next
+/out
+
+# production
+/build
+
+# misc
+.DS_Store
+
+# environment files (may contain secrets)
+/*.env
+
+# debug
+/*.log
+
+# IDEs
+/.idea
+
+# auto-generated files by build/next-on-netlify
+/functions/nextRouter
+/public/_next
+/public/404.html
+/public/_redirects
