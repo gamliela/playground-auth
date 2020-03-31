@@ -6,7 +6,7 @@
   "author": "Alon Gamliel <alon@gamliela.com>",
   "license": "Apache-2.0",
   "dependencies": {
-    "next": "^9.3.1",
+    "next": "^9.3.2",
     "react": "^16.13.0",
     "react-dom": "^16.13.0"
   },
