@@ -7,7 +7,7 @@ const Page = () => (
   <div className={style.index}>
     <Head>
       <title>Home</title>
-      <link rel="icon" href="/favicon.ico"/>
+      <link rel="icon" href="/favicon.ico" />
     </Head>
 
     <h1 className={style.header}>Hello World!</h1>

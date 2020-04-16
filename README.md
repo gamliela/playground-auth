@@ -5,7 +5,6 @@ My starter kit for projects based on Next.js and Netlify.
 This kit consists of the latest versions of:
 
 - React
-- TypeScript
 - Next.js
 - SCSS
 - CSS Modules

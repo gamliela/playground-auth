@@ -7,17 +7,11 @@
   "license": "Apache-2.0",
   "dependencies": {
     "firebase": "^7.14.0",
-    "firebaseui": "^4.5.0",
     "next": "^9.3.4",
     "react": "^16.13.0",
     "react-dom": "^16.13.0"
   },
   "devDependencies": {
-    "@types/node": "^13.11.1",
-    "@types/react": "^16.9.34",
-    "@types/react-dom": "^16.9.6",
-    "@typescript-eslint/eslint-plugin": "^2.27.0",
-    "@typescript-eslint/parser": "^2.27.0",
     "eslint": "^6.8.0",
     "eslint-plugin-react": "^7.19.0",
     "eslint-plugin-react-hooks": "^3.0.0",
@@ -25,15 +19,14 @@
     "netlify-cli": "^2.43.0",
     "next-on-netlify": "^1.0.1",
     "node-sass": "^4.13.1",
-    "prettier": "^2.0.4",
-    "typescript": "^3.8.3"
+    "prettier": "^2.0.4"
   },
   "scripts": {
     "build": "next build && next-on-netlify && cp public/_next/pages/404.html public",
     "deploy": "netlify deploy",
     "dev": "next",
     "dev-netlify": "netlify dev",
-    "lint": "eslint --ignore-path .gitignore './**/*.{ts,tsx,js,jsx}'",
-    "prettify": "prettier --ignore-path .gitignore --write './**/*.{ts,tsx,js,jsx,json,md}'"
+    "lint": "eslint --ignore-path .gitignore './**/*.{js,jsx}'",
+    "prettify": "prettier --ignore-path .gitignore --write './**/*.{js,jsx,json,md}'"
   }
 }
