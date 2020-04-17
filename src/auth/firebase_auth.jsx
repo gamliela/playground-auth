@@ -1,33 +1,63 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
-import * as firebase from "firebase/app";
 import "firebase/auth";
+import { useFirebaseAppContext } from "./firebase_app";
 
-const FirebaseAppContext = React.createContext(undefined);
+const FirebaseAuthContext = React.createContext({
+  isLoading: false,
+  user: null,
+  error: null,
+});
 
-function FirebaseAppProvider({ config, name, children }) {
-  const [app, setApp] = useState(null);
+function FirebaseAuthProvider({ children }) {
+  const app = useFirebaseAppContext();
+  const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const newApp = firebase.initializeApp(config, name);
-    setApp(newApp);
+    setIsLoading(true);
+    setUser(null);
+    setError(null);
 
+    let isActive = true;
+
+    const unsubscribeAuthStateChange = app
+      .auth()
+      .onAuthStateChanged(function (user) {
+        if (isActive) {
+          setUser(user);
+        }
+      });
+
+    app
+      .auth()
+      .getRedirectResult()
+      .catch((reason) => {
+        if (isActive) {
+          setError(reason);
+        }
+      })
+      .finally(() => {
+        if (isActive) {
+          setIsLoading(false);
+        }
+      });
     return () => {
-      newApp.delete();
+      isActive = false;
+      unsubscribeAuthStateChange();
     };
-  }, [config, name]);
+  }, [app]);
 
-  return app ? (
-    <FirebaseAppContext.Provider value={app}>
+  return (
+    <FirebaseAuthContext.Provider value={{ isLoading, user, error }}>
       {children}
-    </FirebaseAppContext.Provider>
-  ) : null;
+    </FirebaseAuthContext.Provider>
+  );
 }
 
-FirebaseAppProvider.propTypes = {
-  config: PropTypes.object.isRequired,
-  name: PropTypes.string,
+FirebaseAuthProvider.propTypes = {
   children: PropTypes.node,
 };
 
-export { FirebaseAppContext, FirebaseAppProvider };
+export { FirebaseAuthContext, FirebaseAuthProvider };

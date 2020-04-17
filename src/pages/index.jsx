@@ -2,17 +2,14 @@ import * as React from "react";
 import style from "./style.module.scss";
 import Head from "next/head";
 import Link from "next/link";
-import { FirebaseAppContext, FirebaseAppProvider } from "../auth/firebase_auth";
-import { useState } from "react";
-import { useContext } from "react";
-
-function AppName() {
-  const fbApp = useContext(FirebaseAppContext);
-  return fbApp.name;
-}
+import { FirebaseAppProvider } from "../auth/firebase_app";
+import FirebaseConfig from "../auth/firebase_config";
+import AppName from "./app_name";
+import SignInButton from "./signin_button";
+import AuthStatus from "./auth_status";
+import { FirebaseAuthProvider } from "../auth/firebase_auth";
 
 function Page() {
-  const [name, setName] = useState(0);
   return (
     <div className={style.index}>
       <Head>
@@ -20,19 +17,29 @@ function Page() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <FirebaseAppProvider config={{}} name={"name" + name}>
-        <h1 className={style.header}>Hello World!</h1>
-        <button onClick={() => setName((name) => name + 1)}>New name!</button>
-        <div>
-          Current name is: <AppName />
-        </div>
+      <div id="index">
+        <FirebaseAppProvider config={FirebaseConfig}>
+          <h1 className={style.header}>Hello World!</h1>
 
-        <div>
-          <Link href="/protected">
-            <a>Go to protected page</a>
-          </Link>
-        </div>
-      </FirebaseAppProvider>
+          <div>
+            Application name is: <AppName />
+          </div>
+
+          <FirebaseAuthProvider>
+            <AuthStatus />
+          </FirebaseAuthProvider>
+
+          <div>
+            <SignInButton />
+          </div>
+
+          <div>
+            <Link href="/protected">
+              <a>Go to protected page</a>
+            </Link>
+          </div>
+        </FirebaseAppProvider>
+      </div>
     </div>
   );
 }
