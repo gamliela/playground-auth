@@ -27,11 +27,11 @@ function Page() {
 
           <FirebaseAuthProvider>
             <AuthStatus />
-          </FirebaseAuthProvider>
 
-          <div>
-            <SignInButton />
-          </div>
+            <div>
+              <SignInButton />
+            </div>
+          </FirebaseAuthProvider>
 
           <div>
             <Link href="/protected">

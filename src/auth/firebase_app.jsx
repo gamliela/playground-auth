@@ -6,7 +6,7 @@ import * as firebase from "firebase/app";
 // https://firebase.google.com/docs/reference/js/firebase.app.App#name
 const DEFAULT_NAME = "[DEFAULT]";
 
-const FirebaseAppContext = React.createContext(undefined);
+const FirebaseAppContext = React.createContext(null);
 
 function FirebaseAppProvider({ config, name, children }) {
   const [app, setApp] = useState(null);
@@ -39,7 +39,7 @@ FirebaseAppProvider.propTypes = {
 function useFirebaseAppContext() {
   const app = useContext(FirebaseAppContext);
   if (app == null) {
-    throw new Error("FirebaseAppContext does not exists");
+    throw new Error("FirebaseAppContext does not exist");
   }
   return app;
 }

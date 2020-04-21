@@ -1,19 +1,22 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import "firebase/auth";
 import { useFirebaseAppContext } from "./firebase_app";
 
-const FirebaseAuthContext = React.createContext({
-  isLoading: false,
-  user: null,
-  error: null,
-});
+// TODO: add typescript
+// TODO: add logout
+// TODO: add auto-login
+
+const FirebaseAuthContext = React.createContext(null);
 
 function FirebaseAuthProvider({ children }) {
   const app = useFirebaseAppContext();
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState(null);
   const [error, setError] = useState(null);
+  const onSigninRequest = useCallback(() => {
+    setIsLoading(true);
+  }, []);
 
   useEffect(() => {
     setIsLoading(true);
@@ -50,7 +53,9 @@ function FirebaseAuthProvider({ children }) {
   }, [app]);
 
   return (
-    <FirebaseAuthContext.Provider value={{ isLoading, user, error }}>
+    <FirebaseAuthContext.Provider
+      value={{ isLoading, user, error, onSigninRequest }}
+    >
       {children}
     </FirebaseAuthContext.Provider>
   );
@@ -60,4 +65,12 @@ FirebaseAuthProvider.propTypes = {
   children: PropTypes.node,
 };
 
-export { FirebaseAuthContext, FirebaseAuthProvider };
+function useFirebaseAuthContext() {
+  const auth = useContext(FirebaseAuthContext);
+  if (auth == null) {
+    throw new Error("FirebaseAuthContext does not exist");
+  }
+  return auth;
+}
+
+export { FirebaseAuthContext, FirebaseAuthProvider, useFirebaseAuthContext };
