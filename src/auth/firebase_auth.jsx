@@ -3,7 +3,6 @@ import PropTypes from "prop-types";
 import "firebase/auth";
 import { useFirebaseAppContext } from "./firebase_app";
 
-// TODO: add typescript
 // TODO: add logout
 // TODO: add auto-login
 

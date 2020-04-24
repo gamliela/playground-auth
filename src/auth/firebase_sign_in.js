@@ -7,9 +7,9 @@ import { useFirebaseAuthContext } from "./firebase_auth";
 function useFirebaseGoogleSignIn({ scopes = [] } = {}) {
   const app = useFirebaseAppContext();
   const { isLoading, onSigninRequest } = useFirebaseAuthContext();
-  const signin = useCallback(() => {
+  const signIn = useCallback(() => {
     if (isLoading) {
-      console.warn("Auth is currently loading; signin request ignored");
+      console.warn("Auth is currently loading; sign-in request ignored");
     } else {
       const provider = new firebase.auth.GoogleAuthProvider();
       scopes.forEach(provider.addScope);
@@ -18,7 +18,7 @@ function useFirebaseGoogleSignIn({ scopes = [] } = {}) {
     }
   }, [app, isLoading, onSigninRequest, scopes]);
 
-  return signin;
+  return signIn;
 }
 
 export { useFirebaseGoogleSignIn };

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { FirebaseAppProvider } from "../auth/firebase_app";
 import FirebaseConfig from "../auth/firebase_config";
 import AppName from "./app_name";
-import SignInButton from "./signin_button";
+import SignInButton from "./sign_in_button";
 import AuthStatus from "./auth_status";
 import { FirebaseAuthProvider } from "../auth/firebase_auth";
 
