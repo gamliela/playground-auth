@@ -1,11 +1,11 @@
-import React, { useContext } from "react";
-import { FirebaseAuthContext } from "../auth/firebase_auth";
+import React from "react";
+import { useFirebaseAuthContext } from "../auth/firebase_auth";
 
 function AuthStatus() {
-  const auth = useContext(FirebaseAuthContext);
+  const auth = useFirebaseAuthContext();
   return (
     <div>
-      isLoading: <pre>{"" + auth.isLoading}</pre>
+      isPending: <pre>{"" + auth.isPending}</pre>
       <br />
       User: <pre>{JSON.stringify(auth.user, null, 2)}</pre>
       <br />
