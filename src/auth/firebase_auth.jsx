@@ -12,12 +12,16 @@ function useAuth() {
   // when returning from redirect, we will not consume the result of the initial promise.
   // running this promise will eventually trigger onAuthStateChanged event,
   // which will update user data and cancel this promise.
-  const [promise, setPromise] = useState(() =>
-    app
-      .auth()
-      .getRedirectResult()
-      .then((userCredential) => userCredential.user)
-  );
+  const [promise, setPromise] = useState(null);
+
+  useEffect(() => {
+    setPromise(
+      app
+        .auth()
+        .getRedirectResult()
+        .then((userCredential) => userCredential.user)
+    );
+  }, [app]);
 
   const signIn = useCallback(
     (scopes = []) => {
@@ -43,14 +47,15 @@ function useAuth() {
   }, [app]);
 
   const controller = useAsync({ promise, app, initialValue: null });
-  const controllerSetData = controller.setData;
 
   useEffect(() => {
-    const unsubscribe = app.auth().onAuthStateChanged(controllerSetData);
+    const unsubscribe = app
+      .auth()
+      .onAuthStateChanged((user) => setPromise(Promise.resolve(user)));
     return () => {
       unsubscribe();
     };
-  }, [app, controllerSetData]);
+  }, [app]);
 
   return {
     isPending: !controller.isSettled,
