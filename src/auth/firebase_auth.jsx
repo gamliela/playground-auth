@@ -1,4 +1,10 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import PropTypes from "prop-types";
 import { useAsync } from "react-async";
 import * as firebase from "firebase/app";
@@ -13,6 +19,8 @@ function useAuth() {
   // running this promise will eventually trigger onAuthStateChanged event,
   // which will update user data and cancel this promise.
   const [promise, setPromise] = useState(null);
+
+  const controller = useAsync({ promise, app, initialValue: null });
 
   useEffect(() => {
     setPromise(
@@ -46,8 +54,6 @@ function useAuth() {
     );
   }, [app]);
 
-  const controller = useAsync({ promise, app, initialValue: null });
-
   useEffect(() => {
     const unsubscribe = app
       .auth()
@@ -57,13 +63,20 @@ function useAuth() {
     };
   }, [app]);
 
-  return {
-    isPending: !controller.isSettled,
-    user: controller.data || null,
-    error: controller.error || null,
-    signIn,
-    signOut,
-  };
+  const isPending = !controller.isSettled;
+  const user = controller.data || null;
+  const error = controller.error || null;
+
+  return useMemo(
+    () => ({
+      isPending,
+      user,
+      error,
+      signIn,
+      signOut,
+    }),
+    [isPending, user, error, signIn, signOut]
+  );
 }
 
 const FirebaseAuthContext = React.createContext(null);
@@ -72,7 +85,7 @@ function FirebaseAuthProvider({ children }) {
   const auth = useAuth();
 
   return (
-    <FirebaseAuthContext.Provider value={{ ...auth }}>
+    <FirebaseAuthContext.Provider value={auth}>
       {children}
     </FirebaseAuthContext.Provider>
   );
