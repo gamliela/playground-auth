@@ -14,4 +14,6 @@ function AuthStatus() {
   );
 }
 
+AuthStatus.whyDidYouRender = true; //{ logOnDifferentValues: true };
+
 export default AuthStatus;
