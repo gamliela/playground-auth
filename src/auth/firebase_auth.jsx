@@ -19,16 +19,20 @@ function authReducer(state, action) {
       return {
         ...state,
         gotRedirectResult: false,
-        promise: action.meta.app.auth().getRedirectResult(),
+        promiseFn: () => action.meta.app.auth().getRedirectResult(),
         user: null,
       };
     case "signIn":
       return {
         ...state,
-        promise: action.meta.app
-          .auth()
-          .signInWithRedirect(action.meta.provider),
+        promiseFn: () =>
+          action.meta.app.auth().signInWithRedirect(action.meta.provider),
         user: null,
+      };
+    case "signOut":
+      return {
+        ...state,
+        promiseFn: () => action.meta.app.auth().signOut(),
       };
     case "onAuthStateChanged":
       return {
@@ -48,12 +52,12 @@ function useAuth() {
   // We use useReducer to force batching, and to avoid multiple render cycles.
   const [authState, dispatch] = useReducer(authReducer, {
     gotRedirectResult: false,
-    promise: null,
+    promiseFn: null,
     user: null,
   });
 
   const controller = useAsync({
-    promise: authState.promise,
+    promiseFn: authState.promiseFn,
     app,
     initialValue: null,
   });
@@ -71,11 +75,13 @@ function useAuth() {
     [app]
   );
 
-  const signOut = useCallback(() => app.auth().signOut(), [app]);
+  const signOut = useCallback(
+    () => dispatch({ type: "signOut", meta: { app } }),
+    [app]
+  );
 
   useEffect(() => {
     const unsubscribe = app.auth().onAuthStateChanged((user) => {
-      // TODO: check this event is called also on errors
       dispatch({ type: "onAuthStateChanged", meta: { user } });
     });
     return () => {
