@@ -11,8 +11,6 @@ import * as firebase from "firebase/app";
 import "firebase/auth";
 import { useFirebaseAppContext } from "./firebase_app";
 
-// TODO: add autoSignIn
-
 function authReducer(state, action) {
   switch (action.type) {
     case "getRedirectResult":
@@ -62,10 +60,6 @@ function useAuth() {
     initialValue: null,
   });
 
-  useEffect(() => dispatch({ type: "getRedirectResult", meta: { app } }), [
-    app,
-  ]);
-
   const signIn = useCallback(
     (scopes = []) => {
       const provider = new firebase.auth.GoogleAuthProvider();
@@ -79,6 +73,10 @@ function useAuth() {
     () => dispatch({ type: "signOut", meta: { app } }),
     [app]
   );
+
+  useEffect(() => dispatch({ type: "getRedirectResult", meta: { app } }), [
+    app,
+  ]);
 
   useEffect(() => {
     const unsubscribe = app.auth().onAuthStateChanged((user) => {
