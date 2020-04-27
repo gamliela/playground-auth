@@ -3,7 +3,7 @@ import React, {
   useContext,
   useEffect,
   useMemo,
-  useState,
+  useReducer,
 } from "react";
 import PropTypes from "prop-types";
 import { useAsync } from "react-async";
@@ -13,59 +13,79 @@ import { useFirebaseAppContext } from "./firebase_app";
 
 // TODO: add autoSignIn
 
+function authReducer(state, action) {
+  switch (action.type) {
+    case "getRedirectResult":
+      return {
+        ...state,
+        gotRedirectResult: false,
+        promise: action.meta.app.auth().getRedirectResult(),
+        user: null,
+      };
+    case "signIn":
+      return {
+        ...state,
+        promise: action.meta.app
+          .auth()
+          .signInWithRedirect(action.meta.provider),
+        user: null,
+      };
+    case "onAuthStateChanged":
+      return {
+        ...state,
+        gotRedirectResult: true,
+        user: action.meta.user,
+      };
+    default:
+      throw new Error(`unknown authReducer action ${action.type}`);
+  }
+}
+
 function useAuth() {
   const app = useFirebaseAppContext();
-  // when returning from redirect, we will not consume the result of the initial promise.
-  // running this promise will eventually trigger onAuthStateChanged event,
-  // which will update user data and cancel this promise.
-  const [promise, setPromise] = useState(null);
 
-  const controller = useAsync({ promise, app, initialValue: null });
+  // React currently does not batch external state updates (https://github.com/facebook/react/issues/14259)
+  // We use useReducer to force batching, and to avoid multiple render cycles.
+  const [authState, dispatch] = useReducer(authReducer, {
+    gotRedirectResult: false,
+    promise: null,
+    user: null,
+  });
 
-  useEffect(() => {
-    setPromise(
-      app
-        .auth()
-        .getRedirectResult()
-        .then((userCredential) => userCredential.user)
-    );
-  }, [app]);
+  const controller = useAsync({
+    promise: authState.promise,
+    app,
+    initialValue: null,
+  });
+
+  useEffect(() => dispatch({ type: "getRedirectResult", meta: { app } }), [
+    app,
+  ]);
 
   const signIn = useCallback(
     (scopes = []) => {
       const provider = new firebase.auth.GoogleAuthProvider();
       scopes.forEach(provider.addScope);
-      setPromise(
-        app
-          .auth()
-          .signInWithRedirect(provider)
-          .then(() => null)
-      );
+      dispatch({ type: "signIn", meta: { app, provider } });
     },
     [app]
   );
 
-  const signOut = useCallback(() => {
-    setPromise(
-      app
-        .auth()
-        .signOut()
-        .then(() => null)
-    );
-  }, [app]);
+  const signOut = useCallback(() => app.auth().signOut(), [app]);
 
   useEffect(() => {
-    const unsubscribe = app
-      .auth()
-      .onAuthStateChanged((user) => setPromise(Promise.resolve(user)));
+    const unsubscribe = app.auth().onAuthStateChanged((user) => {
+      // TODO: check this event is called also on errors
+      dispatch({ type: "onAuthStateChanged", meta: { user } });
+    });
     return () => {
       unsubscribe();
     };
   }, [app]);
 
-  const isPending = !controller.isSettled;
-  const user = controller.data || null;
-  const error = controller.error || null;
+  const isPending = !controller.isSettled || !authState.gotRedirectResult;
+  const user = (!isPending && authState.user) || null;
+  const error = (!isPending && controller.error) || null;
 
   return useMemo(
     () => ({
