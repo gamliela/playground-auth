@@ -13,10 +13,10 @@ import { useFirebaseAppContext } from "./firebase_app";
 
 function authReducer(state, action) {
   switch (action.type) {
-    case "getRedirectResult":
+    case "init":
       return {
         ...state,
-        gotRedirectResult: false,
+        isInitialised: false,
         promiseFn: () => action.meta.app.auth().getRedirectResult(),
         user: null,
       };
@@ -35,7 +35,7 @@ function authReducer(state, action) {
     case "onAuthStateChanged":
       return {
         ...state,
-        gotRedirectResult: true,
+        isInitialised: true, // onAuthStateChanged is called at least once after firebase initialisation
         user: action.meta.user,
       };
     default:
@@ -49,7 +49,7 @@ function useAuth() {
   // React currently does not batch external state updates (https://github.com/facebook/react/issues/14259)
   // We use useReducer to force batching, and to avoid multiple render cycles.
   const [authState, dispatch] = useReducer(authReducer, {
-    gotRedirectResult: false,
+    isInitialised: false,
     promiseFn: null,
     user: null,
   });
@@ -74,9 +74,7 @@ function useAuth() {
     [app]
   );
 
-  useEffect(() => dispatch({ type: "getRedirectResult", meta: { app } }), [
-    app,
-  ]);
+  useEffect(() => dispatch({ type: "init", meta: { app } }), [app]);
 
   useEffect(() => {
     const unsubscribe = app.auth().onAuthStateChanged((user) => {
@@ -87,7 +85,7 @@ function useAuth() {
     };
   }, [app]);
 
-  const isPending = !controller.isSettled || !authState.gotRedirectResult;
+  const isPending = !controller.isSettled || !authState.isInitialised;
   const user = (!isPending && authState.user) || null;
   const error = (!isPending && controller.error) || null;
 
